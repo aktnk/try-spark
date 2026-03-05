@@ -10,6 +10,7 @@ Load splat files and navigate the scene with keyboard, mouse, or touch controls.
 - FPS-style camera controls (WASD + mouse)
 - Model flip buttons (X/Y/Z axis) for correcting orientation
 - Mobile touch joystick for movement
+- Camera settings panel (FOV, Near, Far, Zoom) with Reset and Set Default
 
 ## Controls
 
