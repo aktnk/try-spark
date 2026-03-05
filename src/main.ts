@@ -1,6 +1,7 @@
 import { createSceneContext } from './scene'
 import { setupFileLoader, flipModel } from './splat-loader'
 import { setupJoystick, setupSparkControls } from './controls'
+import { setupCameraSettings } from './camera-settings'
 
 function init(): void {
   const container = document.getElementById('canvas-container')
@@ -13,6 +14,7 @@ function init(): void {
   }
 
   const { scene, camera, renderer } = createSceneContext(container)
+  setupCameraSettings(camera)
   setupFileLoader(scene, fileInput)
   const { getMoveVector } = setupJoystick(joystickZone)
   const sparkControls = setupSparkControls(renderer.domElement)

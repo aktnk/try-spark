@@ -16,6 +16,36 @@
         #flip-controls button:hover { background: rgba(255,255,255,0.3); }
         #flip-controls button.active { background: rgba(0,180,255,0.5); border-color: #0af; }
         #joystick-zone { position: absolute; bottom: 40px; left: 40px; width: 120px; height: 120px; z-index: 100; }
+        #camera-settings-toggle {
+            margin-top: 8px; padding: 4px 12px; border: 1px solid #666; border-radius: 4px;
+            background: rgba(255,255,255,0.15); color: white; cursor: pointer; font-size: 13px;
+        }
+        #camera-settings-toggle:hover { background: rgba(255,255,255,0.3); }
+        #camera-settings-panel {
+            position: relative; margin-top: 6px; padding: 10px 12px; border: 1px solid #555; border-radius: 6px;
+            background: rgba(0,0,0,0.6); font-size: 13px;
+        }
+        #cam-close {
+            position: absolute; top: 4px; right: 6px; background: none; border: none;
+            color: #aaa; cursor: pointer; font-size: 14px; line-height: 1; padding: 0;
+        }
+        #cam-close:hover { color: white; }
+        #camera-settings-panel.hidden { display: none; }
+        .cam-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .cam-row label { width: 40px; color: #ccc; }
+        .cam-row input {
+            width: 72px; padding: 2px 6px; border: 1px solid #555; border-radius: 3px;
+            background: rgba(255,255,255,0.1); color: white; font-size: 13px;
+        }
+        .cam-buttons { display: flex; gap: 6px; margin-top: 4px; }
+        .cam-buttons button {
+            flex: 1; padding: 4px; border: 1px solid #666; border-radius: 4px;
+            color: white; cursor: pointer; font-size: 12px;
+        }
+        #cam-reset { background: rgba(255,200,0,0.2); color: #ffd; }
+        #cam-reset:hover { background: rgba(255,200,0,0.4); }
+        #cam-set-default { background: rgba(0,180,255,0.2); color: #aef; }
+        #cam-set-default:hover { background: rgba(0,180,255,0.4); }
     </style>
 </head>
 <body>
@@ -27,6 +57,18 @@
         <button data-axis="x">Flip X</button>
         <button data-axis="y">Flip Y</button>
         <button data-axis="z">Flip Z</button>
+    </div>
+    <button id="camera-settings-toggle">Camera Settings</button>
+    <div id="camera-settings-panel" class="hidden">
+        <button id="cam-close">✕</button>
+        <div class="cam-row"><label>FOV</label><input id="cam-fov" type="number" step="1" min="1" max="179"></div>
+        <div class="cam-row"><label>Near</label><input id="cam-near" type="number" step="0.01" min="0.001"></div>
+        <div class="cam-row"><label>Far</label><input id="cam-far" type="number" step="1" min="1"></div>
+        <div class="cam-row"><label>Zoom</label><input id="cam-zoom" type="number" step="0.1" min="0.1"></div>
+        <div class="cam-buttons">
+            <button id="cam-reset">Reset</button>
+            <button id="cam-set-default">Set Default</button>
+        </div>
     </div>
 </div>
 
