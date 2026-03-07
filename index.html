@@ -8,6 +8,16 @@
         body { margin: 0; overflow: hidden; background: #000; }
         #canvas-container { width: 100vw; height: 100vh; }
         .ui-overlay { position: absolute; top: 20px; left: 20px; z-index: 100; color: white; font-family: sans-serif; }
+        #file-open-btn {
+            padding: 6px 14px; border: 1px solid #666; border-radius: 4px;
+            background: rgba(255,255,255,0.15); color: white; cursor: pointer; font-size: 13px;
+        }
+        #file-open-btn:hover { background: rgba(255,255,255,0.3); }
+        #reset-view-btn {
+            margin-left: 6px; padding: 6px 14px; border: 1px solid #666; border-radius: 4px;
+            background: rgba(255,255,255,0.15); color: white; cursor: pointer; font-size: 13px;
+        }
+        #reset-view-btn:hover { background: rgba(255,255,255,0.3); }
         #flip-controls { margin-top: 8px; display: flex; gap: 4px; }
         #flip-controls button {
             padding: 4px 12px; border: 1px solid #666; border-radius: 4px;
@@ -42,16 +52,19 @@
             flex: 1; padding: 4px; border: 1px solid #666; border-radius: 4px;
             color: white; cursor: pointer; font-size: 12px;
         }
-        #cam-reset { background: rgba(255,200,0,0.2); color: #ffd; }
-        #cam-reset:hover { background: rgba(255,200,0,0.4); }
-        #cam-set-default { background: rgba(0,180,255,0.2); color: #aef; }
-        #cam-set-default:hover { background: rgba(0,180,255,0.4); }
+        #cam-default { background: rgba(255,200,0,0.2); color: #ffd; }
+        #cam-default:hover { background: rgba(255,200,0,0.4); }
+        #cam-ok { background: rgba(0,200,80,0.2); color: #afa; }
+        #cam-ok:hover { background: rgba(0,200,80,0.4); }
+        #cam-cancel { background: rgba(200,80,80,0.2); color: #faa; }
+        #cam-cancel:hover { background: rgba(200,80,80,0.4); }
     </style>
 </head>
 <body>
 
 <div class="ui-overlay">
-    <input type="file" id="file-input" accept=".ply,.splat,.spz,.ksplat,.sog">
+    <button id="file-open-btn">ファイルを開く</button>
+    <button id="reset-view-btn">表示リセット</button>
     <p>対応形式: .ply, .splat, .spz, .ksplat, .sog</p>
     <div id="flip-controls">
         <button data-axis="x">Flip X</button>
@@ -62,12 +75,12 @@
     <div id="camera-settings-panel" class="hidden">
         <button id="cam-close">✕</button>
         <div class="cam-row"><label>FOV</label><input id="cam-fov" type="number" step="1" min="1" max="179"></div>
-        <div class="cam-row"><label>Near</label><input id="cam-near" type="number" step="0.01" min="0.001"></div>
-        <div class="cam-row"><label>Far</label><input id="cam-far" type="number" step="1" min="1"></div>
         <div class="cam-row"><label>Zoom</label><input id="cam-zoom" type="number" step="0.1" min="0.1"></div>
+        <div class="cam-row"><label>Speed</label><input id="cam-speed" type="number" step="0.1" min="0.1"></div>
         <div class="cam-buttons">
-            <button id="cam-reset">Reset</button>
-            <button id="cam-set-default">Set Default</button>
+            <button id="cam-default">Default</button>
+            <button id="cam-ok">OK</button>
+            <button id="cam-cancel">Cancel</button>
         </div>
     </div>
 </div>

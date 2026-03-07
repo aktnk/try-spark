@@ -1,71 +1,101 @@
 import * as THREE from 'three'
+import type { FpsMovement } from '@sparkjsdev/spark'
 
 const CAMERA_INITIAL = {
   fov: 75,
-  near: 0.1,
-  far: 1000,
   zoom: 1.0,
+  speed: 1.0,
 }
 
-export function setupCameraSettings(camera: THREE.PerspectiveCamera): void {
+export function setupCameraSettings(
+  camera: THREE.PerspectiveCamera,
+  fpsMovement: FpsMovement,
+): { getSpeedMultiplier: () => number } {
   const panel = document.getElementById('camera-settings-panel') as HTMLDivElement
   const toggleBtn = document.getElementById('camera-settings-toggle') as HTMLButtonElement
   const fovInput = document.getElementById('cam-fov') as HTMLInputElement
-  const nearInput = document.getElementById('cam-near') as HTMLInputElement
-  const farInput = document.getElementById('cam-far') as HTMLInputElement
   const zoomInput = document.getElementById('cam-zoom') as HTMLInputElement
-  const resetBtn = document.getElementById('cam-reset') as HTMLButtonElement
-  const setDefaultBtn = document.getElementById('cam-set-default') as HTMLButtonElement
+  const speedInput = document.getElementById('cam-speed') as HTMLInputElement
+  const defaultBtn = document.getElementById('cam-default') as HTMLButtonElement
+  const okBtn = document.getElementById('cam-ok') as HTMLButtonElement
+  const cancelBtn = document.getElementById('cam-cancel') as HTMLButtonElement
   const closeBtn = document.getElementById('cam-close') as HTMLButtonElement
 
-  let cameraDefaults = { ...CAMERA_INITIAL }
+  const baseMoveSpeed = fpsMovement.moveSpeed
 
-  toggleBtn.addEventListener('click', () => {
-    panel.classList.toggle('hidden')
-  })
+  // Current applied speed multiplier (shared with animation loop via getter)
+  let appliedSpeedMultiplier = CAMERA_INITIAL.speed
 
-  closeBtn.addEventListener('click', () => {
-    panel.classList.add('hidden')
-  })
-
-  function applyToCamera(): void {
-    const fov = parseFloat(fovInput.value)
-    const near = parseFloat(nearInput.value)
-    const far = parseFloat(farInput.value)
-    const zoom = parseFloat(zoomInput.value)
-
-    if (!isNaN(fov) && fov > 0 && fov < 180) camera.fov = fov
-    if (!isNaN(near) && near > 0) camera.near = near
-    if (!isNaN(far) && far > 0) camera.far = far
-    if (!isNaN(zoom) && zoom > 0) camera.zoom = zoom
-
-    camera.updateProjectionMatrix()
-  }
+  // Snapshot captured when panel opens — used by Cancel
+  let snapshot = { fov: camera.fov, zoom: camera.zoom, speed: appliedSpeedMultiplier }
 
   function setInputValues(values: typeof CAMERA_INITIAL): void {
     fovInput.value = String(values.fov)
-    nearInput.value = String(values.near)
-    farInput.value = String(values.far)
     zoomInput.value = String(values.zoom)
+    speedInput.value = String(values.speed)
   }
 
-  resetBtn.addEventListener('click', () => {
-    setInputValues(cameraDefaults)
-    applyToCamera()
-  })
+  // Live preview: apply FOV and Zoom immediately
+  function applyFovZoom(): void {
+    const fov = parseFloat(fovInput.value)
+    const zoom = parseFloat(zoomInput.value)
+    if (!isNaN(fov) && fov > 0 && fov < 180) camera.fov = fov
+    if (!isNaN(zoom) && zoom > 0) camera.zoom = zoom
+    camera.updateProjectionMatrix()
+  }
 
-  setDefaultBtn.addEventListener('click', () => {
-    cameraDefaults = {
-      fov: parseFloat(fovInput.value),
-      near: parseFloat(nearInput.value),
-      far: parseFloat(farInput.value),
-      zoom: parseFloat(zoomInput.value),
+  function applySpeed(): void {
+    const speed = parseFloat(speedInput.value)
+    if (!isNaN(speed) && speed > 0) {
+      appliedSpeedMultiplier = speed
+      fpsMovement.moveSpeed = baseMoveSpeed * speed
+    }
+  }
+
+  function openPanel(): void {
+    snapshot = { fov: camera.fov, zoom: camera.zoom, speed: appliedSpeedMultiplier }
+    setInputValues(snapshot)
+    panel.classList.remove('hidden')
+  }
+
+  function closeWithCancel(): void {
+    camera.fov = snapshot.fov
+    camera.zoom = snapshot.zoom
+    camera.updateProjectionMatrix()
+    setInputValues(snapshot)
+    panel.classList.add('hidden')
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    if (panel.classList.contains('hidden')) {
+      openPanel()
+    } else {
+      closeWithCancel()
     }
   })
 
-  ;[fovInput, nearInput, farInput, zoomInput].forEach(input => {
-    input.addEventListener('change', applyToCamera)
+  // Live preview on input change
+  fovInput.addEventListener('input', applyFovZoom)
+  zoomInput.addEventListener('input', applyFovZoom)
+
+  defaultBtn.addEventListener('click', () => {
+    setInputValues(CAMERA_INITIAL)
+    applyFovZoom()
   })
 
-  setInputValues(cameraDefaults)
+  okBtn.addEventListener('click', () => {
+    applySpeed()
+    panel.classList.add('hidden')
+  })
+
+  cancelBtn.addEventListener('click', closeWithCancel)
+  closeBtn.addEventListener('click', closeWithCancel)
+
+  // Apply initial values
+  applySpeed()
+  setInputValues(CAMERA_INITIAL)
+
+  return {
+    getSpeedMultiplier: () => appliedSpeedMultiplier,
+  }
 }

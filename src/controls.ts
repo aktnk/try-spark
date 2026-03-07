@@ -10,7 +10,7 @@ export function setupJoystick(zone: HTMLElement): { getMoveVector: () => MoveVec
     zone,
     mode: 'static',
     position: { left: '50%', top: '50%' },
-    color: 'aqua',
+    color: '#888888',
   })
 
   manager.on('move', (_evt, data) => {
@@ -31,10 +31,14 @@ export function setupJoystick(zone: HTMLElement): { getMoveVector: () => MoveVec
 
 export function setupSparkControls(canvas: HTMLCanvasElement): {
   update: (camera: THREE.Object3D) => void
+  fpsMovement: SparkControls['fpsMovement']
+  pointerControls: SparkControls['pointerControls']
 } {
   const controls = new SparkControls({ canvas })
 
   return {
     update: (camera) => controls.update(camera),
+    fpsMovement: controls.fpsMovement,
+    pointerControls: controls.pointerControls,
   }
 }
