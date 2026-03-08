@@ -2,6 +2,7 @@ import { createSceneContext } from './scene'
 import { setupFileLoader, flipModel, resetFlip } from './splat-loader'
 import { setupJoystick, setupSparkControls } from './controls'
 import { setupCameraSettings } from './camera-settings'
+import { setupHud } from './hud'
 
 const BASE_JOYSTICK_SPEED = 0.05
 
@@ -21,6 +22,7 @@ function init(): void {
 
   const { update: updateSpark, fpsMovement, pointerControls } = setupSparkControls(renderer.domElement)
   const { getSpeedMultiplier } = setupCameraSettings(camera, fpsMovement)
+  setupHud()
   setupFileLoader(scene, fileOpenBtn)
   const { getMoveVector } = setupJoystick(joystickZone)
 

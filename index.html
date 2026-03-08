@@ -26,8 +26,14 @@
         #flip-controls button:hover { background: rgba(255,255,255,0.3); }
         #flip-controls button.active { background: rgba(0,180,255,0.5); border-color: #0af; }
         #joystick-zone { position: absolute; bottom: 40px; left: 40px; width: 120px; height: 120px; z-index: 100; }
-        #camera-settings-toggle {
+        #hud-toggle-btn {
             margin-top: 8px; padding: 4px 12px; border: 1px solid #666; border-radius: 4px;
+            background: rgba(255,255,255,0.15); color: white; cursor: pointer; font-size: 13px;
+        }
+        #hud-toggle-btn:hover { background: rgba(255,255,255,0.3); }
+        #hud-toggle-btn.active { background: rgba(0,180,255,0.3); border-color: #0af; }
+        #camera-settings-toggle {
+            margin-left: 6px; padding: 4px 12px; border: 1px solid #666; border-radius: 4px;
             background: rgba(255,255,255,0.15); color: white; cursor: pointer; font-size: 13px;
         }
         #camera-settings-toggle:hover { background: rgba(255,255,255,0.3); }
@@ -58,6 +64,47 @@
         #cam-ok:hover { background: rgba(0,200,80,0.4); }
         #cam-cancel { background: rgba(200,80,80,0.2); color: #faa; }
         #cam-cancel:hover { background: rgba(200,80,80,0.4); }
+
+        /* HUD overlay */
+        #hud-overlay {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none; z-index: 50;
+        }
+        #hud-overlay.hidden { display: none; }
+        .hud-horizon {
+            position: absolute; top: 50%; left: calc(50% - 10vh);
+            width: 20vh; height: 1px;
+            background: rgba(255,255,255,0.12);
+            transform: translateY(-50%);
+        }
+        .hud-vertical {
+            position: absolute; top: calc(50% - 10vh); left: 50%;
+            width: 1px; height: 20vh;
+            background: rgba(255,255,255,0.12);
+            transform: translateX(-50%);
+        }
+        .hud-crosshair-h {
+            position: absolute; top: 50%; left: calc(50% - 18px);
+            width: 36px; height: 1px;
+            background: rgba(255,255,255,0.85);
+            transform: translateY(-50%);
+            box-shadow: 0 0 3px rgba(0,0,0,0.6);
+        }
+        .hud-crosshair-v {
+            position: absolute; top: calc(50% - 10px); left: 50%;
+            width: 1px; height: 20px;
+            background: rgba(255,255,255,0.85);
+            transform: translateX(-50%);
+            box-shadow: 0 0 3px rgba(0,0,0,0.6);
+        }
+        .hud-dot {
+            position: absolute; top: 50%; left: 50%;
+            width: 4px; height: 4px; border-radius: 50%;
+            background: rgba(255,255,255,0.95);
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 3px rgba(0,0,0,0.7);
+        }
     </style>
 </head>
 <body>
@@ -71,6 +118,7 @@
         <button data-axis="y">Flip Y</button>
         <button data-axis="z">Flip Z</button>
     </div>
+    <button id="hud-toggle-btn" class="active">HUD</button>
     <button id="camera-settings-toggle">Camera Settings</button>
     <div id="camera-settings-panel" class="hidden">
         <button id="cam-close">✕</button>
@@ -83,6 +131,14 @@
             <button id="cam-cancel">Cancel</button>
         </div>
     </div>
+</div>
+
+<div id="hud-overlay">
+    <div class="hud-horizon"></div>
+    <div class="hud-vertical"></div>
+    <div class="hud-crosshair-h"></div>
+    <div class="hud-crosshair-v"></div>
+    <div class="hud-dot"></div>
 </div>
 
 <div id="joystick-zone"></div>
