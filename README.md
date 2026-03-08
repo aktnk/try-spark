@@ -13,6 +13,7 @@ Runs as a native desktop app (Tauri) or in the browser. Load splat files and nav
 - Reset view button — restores camera position, orientation, and flip state
 - Mobile touch joystick for movement
 - Camera settings panel (FOV, Zoom, Move Speed)
+- HUD overlay — crosshair and guide lines for navigation alignment
 
 ## UI Buttons
 
@@ -21,7 +22,19 @@ Runs as a native desktop app (Tauri) or in the browser. Load splat files and nav
 | ファイルを開く | Open a splat file via native dialog |
 | 表示リセット | Reset camera to initial position and clear all flip states |
 | Flip X / Y / Z | Flip model along the selected axis |
+| HUD | Toggle the HUD overlay (crosshair + guide lines) |
 | Camera Settings | Toggle the camera settings panel |
+
+### HUD Overlay
+
+Helps align the camera's look direction with the intended movement direction, reducing drift into walls, floors, and ceilings.
+
+| Element | Description |
+|---------|-------------|
+| Center dot | Marks the exact center of the view |
+| Crosshair (short cross) | Bright short lines indicating the look direction |
+| Horizontal guide line | Spans 20vh centered, helps keep the horizon level |
+| Vertical guide line | Spans 20vh centered, helps avoid vertical drift |
 
 ### Camera Settings Panel
 
