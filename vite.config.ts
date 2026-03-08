@@ -4,4 +4,15 @@ export default defineConfig({
   server: {
     open: true,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          three: ['three'],
+          spark: ['@sparkjsdev/spark'],
+          nipplejs: ['nipplejs'],
+        },
+      },
+    },
+  },
 })
