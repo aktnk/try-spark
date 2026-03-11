@@ -36,10 +36,41 @@ async function pickFileUrl(): Promise<string | null> {
   })
 }
 
+function setupLoadingOverlay(): {
+  showLoading: () => void
+  showError: (msg?: string) => void
+  hide: () => void
+} {
+  const overlay = document.getElementById('loading-overlay')!
+  const errorText = document.getElementById('loading-error-text')!
+  const closeBtn = document.getElementById('loading-close-btn')!
+
+  const hide = () => {
+    overlay.className = 'hidden'
+  }
+
+  closeBtn.addEventListener('click', hide)
+
+  return {
+    showLoading: () => {
+      overlay.className = ''
+    },
+    showError: (msg = '読み込みに失敗しました') => {
+      errorText.textContent = msg
+      overlay.className = 'error'
+    },
+    hide,
+  }
+}
+
+const loadingOverlay = setupLoadingOverlay()
+
 export function setupFileLoader(
   scene: THREE.Scene,
-  openButton: HTMLButtonElement
+  openButton: HTMLButtonElement,
+  onFirstLoad?: () => void
 ): void {
+  let firstLoaded = false
   openButton.addEventListener('click', async () => {
     const url = await pickFileUrl()
     if (!url) return
@@ -50,12 +81,33 @@ export function setupFileLoader(
       currentModel = null
     }
 
+    openButton.disabled = true
+    loadingOverlay.showLoading()
+
     const isBlobUrl = url.startsWith('blob:')
-    currentModel = new SplatMesh({
-      url,
-      onLoad: isBlobUrl ? () => URL.revokeObjectURL(url) : undefined,
-    })
-    scene.add(currentModel)
+    const mesh = new SplatMesh({ url })
+    currentModel = mesh
+    scene.add(mesh)
+
+    mesh.initialized
+      .then(() => {
+        if (isBlobUrl) URL.revokeObjectURL(url)
+        loadingOverlay.hide()
+        openButton.disabled = false
+        if (!firstLoaded) {
+          firstLoaded = true
+          onFirstLoad?.()
+        }
+      })
+      .catch((err: unknown) => {
+        if (isBlobUrl) URL.revokeObjectURL(url)
+        const msg = err instanceof Error ? err.message : 'ファイルを読み込めませんでした'
+        loadingOverlay.showError(msg)
+        openButton.disabled = false
+        scene.remove(mesh)
+        mesh.dispose()
+        if (currentModel === mesh) currentModel = null
+      })
   })
 }
 

@@ -22,8 +22,8 @@ function init(): void {
 
   const { update: updateSpark, fpsMovement, pointerControls } = setupSparkControls(renderer.domElement)
   const { getSpeedMultiplier } = setupCameraSettings(camera, fpsMovement)
-  setupHud()
-  setupFileLoader(scene, fileOpenBtn)
+  const { showHud } = setupHud()
+  setupFileLoader(scene, fileOpenBtn, showHud)
   const { getMoveVector } = setupJoystick(joystickZone)
 
   const resetViewBtn = document.getElementById('reset-view-btn') as HTMLButtonElement
