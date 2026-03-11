@@ -8,21 +8,25 @@ Runs as a native desktop app (Tauri) or in the browser. Load splat files and nav
 
 - Load 3DGS files: `.ply`, `.splat`, `.spz`, `.ksplat`, `.sog`
 - Native file open dialog (desktop) or browser file picker (web) — auto-detected
+- Loading indicator — spinner during load, error message on failure
+- Loaded file name displayed in the UI panel
 - FPS-style camera controls (WASD + mouse)
 - Model flip buttons (X/Y/Z axis) for correcting orientation
 - Reset view button — restores camera position, orientation, and flip state
 - Mobile touch joystick for movement
 - Camera settings panel (FOV, Zoom, Move Speed)
-- HUD overlay — crosshair and guide lines for navigation alignment
+- Render settings panel (tone mapping, exposure, premultiplied alpha, focal adjustment)
+- HUD overlay — crosshair and guide lines; shown after first file load
 
 ## UI Buttons
 
 | Button | Action |
 |--------|--------|
-| ファイルを開く | Open a splat file via native dialog |
+| ファイルを開く | Open a splat file via native dialog (hover to see supported formats) |
 | 表示リセット | Reset camera to initial position and clear all flip states |
 | Flip X / Y / Z | Flip model along the selected axis |
 | HUD | Toggle the HUD overlay (crosshair + guide lines) |
+| Render | Toggle the render settings panel |
 | Camera Settings | Toggle the camera settings panel |
 
 ### HUD Overlay
@@ -46,6 +50,19 @@ Helps align the camera's look direction with the intended movement direction, re
 | Default | Reset all inputs to initial values and apply FOV/Zoom immediately |
 | OK | Apply Speed and close panel (FOV/Zoom already applied) |
 | Cancel / ✕ | Revert FOV/Zoom to values when panel was opened and close |
+
+### Render Settings Panel
+
+Adjusts the rendering appearance of loaded splats. Settings are saved to `localStorage` and restored on next launch.
+
+| Control | Description |
+|---------|-------------|
+| Tone Map | Three.js tone mapping: None / Linear / Reinhard / Cineon / ACES Filmic |
+| Exposure | Brightness multiplier (default: 1.0) |
+| Pre-mult α | Premultiplied alpha blending for splats (default: ON) |
+| Focal Adj | Splat scale factor — `2.0` matches Super Splat / PlayCanvas rendering (default: 1.0) |
+| Default | Restore all render settings to defaults |
+| Super Splat | Apply `Focal Adj: 2.0` to match Super Splat Viewer appearance |
 
 ## Controls
 
