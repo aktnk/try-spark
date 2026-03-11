@@ -7,7 +7,9 @@ const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
 
 let currentModel: SplatMesh | null = null
 
-async function pickFileUrl(): Promise<string | null> {
+type PickedFile = { url: string; label: string }
+
+async function pickFileUrl(): Promise<PickedFile | null> {
   if (isTauri) {
     const { open } = await import('@tauri-apps/plugin-dialog')
     const { convertFileSrc } = await import('@tauri-apps/api/core')
@@ -18,7 +20,7 @@ async function pickFileUrl(): Promise<string | null> {
       ],
     })
     if (!filePath) return null
-    return convertFileSrc(filePath as string)
+    return { url: convertFileSrc(filePath as string), label: filePath as string }
   }
 
   // Browser fallback: programmatic file input
@@ -29,7 +31,7 @@ async function pickFileUrl(): Promise<string | null> {
     input.onchange = () => {
       const file = input.files?.[0]
       if (!file) { resolve(null); return }
-      resolve(URL.createObjectURL(file))
+      resolve({ url: URL.createObjectURL(file), label: file.name })
     }
     input.oncancel = () => resolve(null)
     input.click()
@@ -71,9 +73,13 @@ export function setupFileLoader(
   onFirstLoad?: () => void
 ): void {
   let firstLoaded = false
+  const fileNameDisplay = document.getElementById('file-name-display')
+
   openButton.addEventListener('click', async () => {
-    const url = await pickFileUrl()
-    if (!url) return
+    const picked = await pickFileUrl()
+    if (!picked) return
+
+    const { url, label } = picked
 
     if (currentModel) {
       scene.remove(currentModel)
@@ -83,6 +89,7 @@ export function setupFileLoader(
 
     openButton.disabled = true
     loadingOverlay.showLoading()
+    if (fileNameDisplay) fileNameDisplay.textContent = label
 
     const isBlobUrl = url.startsWith('blob:')
     const mesh = new SplatMesh({ url })
@@ -104,6 +111,7 @@ export function setupFileLoader(
         const msg = err instanceof Error ? err.message : 'ファイルを読み込めませんでした'
         loadingOverlay.showError(msg)
         openButton.disabled = false
+        if (fileNameDisplay) fileNameDisplay.textContent = ''
         scene.remove(mesh)
         mesh.dispose()
         if (currentModel === mesh) currentModel = null

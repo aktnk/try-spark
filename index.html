@@ -65,6 +65,12 @@
         #cam-cancel { background: rgba(200,80,80,0.2); color: #faa; }
         #cam-cancel:hover { background: rgba(200,80,80,0.4); }
 
+        /* File name display */
+        #file-name-display {
+            margin-top: 6px; max-width: 260px; word-break: break-all;
+        }
+        #file-name-display:empty { display: none; }
+
         /* Loading overlay */
         #loading-overlay {
             position: absolute; top: 0; left: 0;
@@ -146,9 +152,9 @@
 <body>
 
 <div class="ui-overlay">
-    <button id="file-open-btn">ファイルを開く</button>
+    <button id="file-open-btn" title="対応形式: .ply, .splat, .spz, .ksplat, .sog">ファイルを開く</button>
     <button id="reset-view-btn">表示リセット</button>
-    <p>対応形式: .ply, .splat, .spz, .ksplat, .sog</p>
+    <div id="file-name-display"></div>
     <div id="flip-controls">
         <button data-axis="x">Flip X</button>
         <button data-axis="y">Flip Y</button>
