@@ -3,6 +3,7 @@ import { setupFileLoader, flipModel, resetFlip } from './splat-loader'
 import { setupJoystick, setupSparkControls } from './controls'
 import { setupCameraSettings } from './camera-settings'
 import { setupHud } from './hud'
+import { setupRenderSettings } from './render-settings'
 
 const BASE_JOYSTICK_SPEED = 0.05
 
@@ -16,13 +17,14 @@ function init(): void {
     throw new Error('Required DOM elements not found')
   }
 
-  const { scene, camera, renderer } = createSceneContext(container)
+  const { scene, camera, renderer, spark } = createSceneContext(container)
   const initialPosition = camera.position.clone()
   const initialQuaternion = camera.quaternion.clone()
 
   const { update: updateSpark, fpsMovement, pointerControls } = setupSparkControls(renderer.domElement)
   const { getSpeedMultiplier } = setupCameraSettings(camera, fpsMovement)
   const { showHud } = setupHud()
+  setupRenderSettings(renderer, spark)
   setupFileLoader(scene, fileOpenBtn, showHud)
   const { getMoveVector } = setupJoystick(joystickZone)
 

@@ -32,6 +32,39 @@
         }
         #hud-toggle-btn:hover { background: rgba(255,255,255,0.3); }
         #hud-toggle-btn.active { background: rgba(0,180,255,0.3); border-color: #0af; }
+        #render-settings-toggle {
+            margin-left: 6px; padding: 4px 12px; border: 1px solid #666; border-radius: 4px;
+            background: rgba(255,255,255,0.15); color: white; cursor: pointer; font-size: 13px;
+        }
+        #render-settings-toggle:hover { background: rgba(255,255,255,0.3); }
+        #render-settings-toggle.active { background: rgba(0,180,255,0.3); border-color: #0af; }
+        #render-settings-panel {
+            position: relative; margin-top: 6px; padding: 10px 12px; border: 1px solid #555; border-radius: 6px;
+            background: rgba(0,0,0,0.6); font-size: 13px;
+        }
+        #render-settings-panel.hidden { display: none; }
+        #rnd-close {
+            position: absolute; top: 4px; right: 6px; background: none; border: none;
+            color: #aaa; cursor: pointer; font-size: 14px; line-height: 1; padding: 0;
+        }
+        #rnd-close:hover { color: white; }
+        .rnd-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .rnd-row label { width: 72px; color: #ccc; }
+        .rnd-row select, .rnd-row input[type="number"] {
+            flex: 1; padding: 2px 6px; border: 1px solid #555; border-radius: 3px;
+            background: rgba(255,255,255,0.1); color: white; font-size: 13px;
+        }
+        .rnd-row input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+        .rnd-buttons { display: flex; gap: 6px; margin-top: 4px; }
+        .rnd-buttons button {
+            flex: 1; padding: 4px; border: 1px solid #666; border-radius: 4px;
+            color: white; cursor: pointer; font-size: 12px;
+        }
+        #rnd-default { background: rgba(255,200,0,0.2); color: #ffd; }
+        #rnd-default:hover { background: rgba(255,200,0,0.4); }
+        #rnd-supersplat { background: rgba(0,180,100,0.2); color: #afa; }
+        #rnd-supersplat:hover { background: rgba(0,180,100,0.4); }
+
         #camera-settings-toggle {
             margin-left: 6px; padding: 4px 12px; border: 1px solid #666; border-radius: 4px;
             background: rgba(255,255,255,0.15); color: white; cursor: pointer; font-size: 13px;
@@ -161,6 +194,27 @@
         <button data-axis="z">Flip Z</button>
     </div>
     <button id="hud-toggle-btn">HUD</button>
+    <button id="render-settings-toggle">Render</button>
+    <div id="render-settings-panel" class="hidden">
+        <button id="rnd-close">✕</button>
+        <div class="rnd-row">
+            <label>Tone Map</label>
+            <select id="rnd-tone-mapping">
+                <option value="0">None</option>
+                <option value="1">Linear</option>
+                <option value="2">Reinhard</option>
+                <option value="3">Cineon</option>
+                <option value="4">ACES Filmic</option>
+            </select>
+        </div>
+        <div class="rnd-row"><label>Exposure</label><input id="rnd-exposure" type="number" step="0.1" min="0.1" max="5"></div>
+        <div class="rnd-row"><label>Pre-mult α</label><input id="rnd-premult" type="checkbox"></div>
+        <div class="rnd-row"><label>Focal Adj</label><input id="rnd-focal" type="number" step="0.1" min="0.1" max="4"></div>
+        <div class="rnd-buttons">
+            <button id="rnd-default">Default</button>
+            <button id="rnd-supersplat">Super Splat</button>
+        </div>
+    </div>
     <button id="camera-settings-toggle">Camera Settings</button>
     <div id="camera-settings-panel" class="hidden">
         <button id="cam-close">✕</button>
