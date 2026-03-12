@@ -70,7 +70,8 @@ const loadingOverlay = setupLoadingOverlay()
 export function setupFileLoader(
   scene: THREE.Scene,
   openButton: HTMLButtonElement,
-  onFirstLoad?: () => void
+  onFirstLoad?: () => void,
+  hudControl?: { pause: () => void; resume: () => void }
 ): void {
   let firstLoaded = false
   const fileNameDisplay = document.getElementById('file-name-display')
@@ -88,6 +89,7 @@ export function setupFileLoader(
     }
 
     openButton.disabled = true
+    hudControl?.pause()
     loadingOverlay.showLoading()
     if (fileNameDisplay) fileNameDisplay.textContent = label
 
@@ -104,6 +106,8 @@ export function setupFileLoader(
         if (!firstLoaded) {
           firstLoaded = true
           onFirstLoad?.()
+        } else {
+          hudControl?.resume()
         }
       })
       .catch((err: unknown) => {
@@ -111,6 +115,7 @@ export function setupFileLoader(
         const msg = err instanceof Error ? err.message : 'ファイルを読み込めませんでした'
         loadingOverlay.showError(msg)
         openButton.disabled = false
+        hudControl?.resume()
         if (fileNameDisplay) fileNameDisplay.textContent = ''
         scene.remove(mesh)
         mesh.dispose()

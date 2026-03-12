@@ -1,7 +1,11 @@
-export function setupHud(): { showHud: () => void } {
+export function setupHud(): {
+  showHud: () => void
+  pauseHud: () => void
+  resumeHud: () => void
+} {
   const overlay = document.getElementById('hud-overlay')
   const toggleBtn = document.getElementById('hud-toggle-btn') as HTMLButtonElement | null
-  if (!overlay || !toggleBtn) return { showHud: () => {} }
+  if (!overlay || !toggleBtn) return { showHud: () => {}, pauseHud: () => {}, resumeHud: () => {} }
 
   let visible = false
 
@@ -16,6 +20,12 @@ export function setupHud(): { showHud: () => void } {
       visible = true
       overlay.classList.remove('hidden')
       toggleBtn.classList.add('active')
+    },
+    pauseHud: () => {
+      overlay.classList.add('hidden')
+    },
+    resumeHud: () => {
+      overlay.classList.toggle('hidden', !visible)
     },
   }
 }
