@@ -49,7 +49,7 @@
         }
         #rnd-close:hover { color: white; }
         .rnd-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-        .rnd-row label { width: 72px; color: #ccc; }
+        .rnd-row label { width: 80px; color: #ccc; }
         .rnd-row select, .rnd-row input[type="number"] {
             flex: 1; padding: 2px 6px; border: 1px solid #555; border-radius: 3px;
             background: rgba(255,255,255,0.1); color: white; font-size: 13px;
@@ -185,8 +185,8 @@
 <body>
 
 <div class="ui-overlay">
-    <button id="file-open-btn" title="対応形式: .ply, .splat, .spz, .ksplat, .sog">ファイルを開く</button>
-    <button id="reset-view-btn">表示リセット</button>
+    <button id="file-open-btn" title="Supported formats: .ply, .splat, .spz, .ksplat, .sog">Read File</button>
+    <button id="reset-view-btn">Reset view</button>
     <div id="file-name-display"></div>
     <div id="flip-controls">
         <button data-axis="x">Flip X</button>
@@ -210,6 +210,7 @@
         <div class="rnd-row"><label>Exposure</label><input id="rnd-exposure" type="number" step="0.1" min="0.1" max="5"></div>
         <div class="rnd-row"><label>Pre-mult α</label><input id="rnd-premult" type="checkbox"></div>
         <div class="rnd-row"><label>Focal Adj</label><input id="rnd-focal" type="number" step="0.1" min="0.1" max="4"></div>
+        <div class="rnd-row"><label>LoD Scale</label><input id="rnd-lod-scale" type="number" step="0.1" min="0" max="10"></div>
         <div class="rnd-buttons">
             <button id="rnd-default">Default</button>
             <button id="rnd-supersplat">Super Splat</button>
@@ -232,9 +233,9 @@
 <div id="loading-overlay" class="hidden">
     <div class="loading-spinner"></div>
     <div class="loading-error-icon">⚠️</div>
-    <div class="loading-message">読み込み中...</div>
-    <div class="loading-error-msg" id="loading-error-text">読み込みに失敗しました</div>
-    <button id="loading-close-btn">閉じる</button>
+    <div class="loading-message">now loading...</div>
+    <div class="loading-error-msg" id="loading-error-text">Loading failed</div>
+    <button id="loading-close-btn">Close</button>
 </div>
 
 <div id="hud-overlay" class="hidden">

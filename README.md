@@ -15,15 +15,16 @@ Runs as a native desktop app (Tauri) or in the browser. Load splat files and nav
 - Reset view button — restores camera position, orientation, and flip state
 - Mobile touch joystick for movement
 - Camera settings panel (FOV, Zoom, Move Speed)
-- Render settings panel (tone mapping, exposure, premultiplied alpha, focal adjustment)
+- Render settings panel (tone mapping, exposure, premultiplied alpha, focal adjustment, LoD scale)
 - HUD overlay — crosshair and guide lines; shown after first file load
+- **Level-of-Detail (LoD) rendering** — automatic detail scaling based on distance and screen size
 
 ## UI Buttons
 
 | Button | Action |
 |--------|--------|
-| ファイルを開く | Open a splat file via native dialog (hover to see supported formats) |
-| 表示リセット | Reset camera to initial position and clear all flip states |
+| Read File | Open a splat file via native dialog (hover to see supported formats) |
+| Reset view | Reset camera to initial position and clear all flip states |
 | Flip X / Y / Z | Flip model along the selected axis |
 | HUD | Toggle the HUD overlay (crosshair + guide lines) |
 | Render | Toggle the render settings panel |
@@ -61,6 +62,7 @@ Adjusts the rendering appearance of loaded splats. Settings are saved to `localS
 | Exposure | Brightness multiplier (default: 1.0) |
 | Pre-mult α | Premultiplied alpha blending for splats (default: ON) |
 | Focal Adj | Splat scale factor — `2.0` matches Super Splat / PlayCanvas rendering (default: 1.0) |
+| LoD Scale | LoD splat budget multiplier — higher values increase detail at the cost of performance (default: 1.0) |
 | Default | Restore all render settings to defaults |
 | Super Splat | Apply `Focal Adj: 2.0` to match Super Splat Viewer appearance |
 
@@ -135,8 +137,8 @@ The web build can be hosted on any static file server and accessed from PC or mo
 
 - [Tauri](https://tauri.app/) v2 - Desktop app framework (Rust)
 - [Vite](https://vite.dev/) + TypeScript
-- [Three.js](https://threejs.org/) (^0.183)
-- [@sparkjsdev/spark](https://sparkjs.dev/) (^0.1.10) - 3DGS renderer for Three.js
+- [Three.js](https://threejs.org/) (^0.180)
+- [@sparkjsdev/spark](https://sparkjs.dev/) (^2.0.0) - 3DGS renderer for Three.js with LoD support
 - [nipplejs](https://yoannmoi.net/nipplejs/) - Virtual joystick for touch devices
 
 ## License

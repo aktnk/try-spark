@@ -94,7 +94,7 @@ export function setupFileLoader(
     if (fileNameDisplay) fileNameDisplay.textContent = label
 
     const isBlobUrl = url.startsWith('blob:')
-    const mesh = new SplatMesh({ url })
+    const mesh = new SplatMesh({ url, lod: true })
     currentModel = mesh
     scene.add(mesh)
 

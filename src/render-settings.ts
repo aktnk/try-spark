@@ -6,6 +6,7 @@ type RenderSettingsState = {
   exposure: number
   premultipliedAlpha: boolean
   focalAdjustment: number
+  lodSplatScale: number
 }
 
 const DEFAULTS: RenderSettingsState = {
@@ -13,6 +14,7 @@ const DEFAULTS: RenderSettingsState = {
   exposure: 1.0,
   premultipliedAlpha: true,
   focalAdjustment: 1.0,
+  lodSplatScale: 1.0,
 }
 
 const STORAGE_KEY = 'renderSettings'
@@ -40,7 +42,7 @@ function applyState(
   renderer.toneMappingExposure = state.exposure
   spark.premultipliedAlpha = state.premultipliedAlpha
   spark.focalAdjustment = state.focalAdjustment
-  spark.needsUpdate = true
+  spark.lodSplatScale = state.lodSplatScale
 }
 
 export function setupRenderSettings(
@@ -54,10 +56,11 @@ export function setupRenderSettings(
   const exposureEl = document.getElementById('rnd-exposure') as HTMLInputElement | null
   const premultEl = document.getElementById('rnd-premult') as HTMLInputElement | null
   const focalEl = document.getElementById('rnd-focal') as HTMLInputElement | null
+  const lodScaleEl = document.getElementById('rnd-lod-scale') as HTMLInputElement | null
   const defaultBtn = document.getElementById('rnd-default')
   const superSplatBtn = document.getElementById('rnd-supersplat')
 
-  if (!toggleBtn || !panel || !closeBtn || !toneMappingEl || !exposureEl || !premultEl || !focalEl || !defaultBtn || !superSplatBtn) return
+  if (!toggleBtn || !panel || !closeBtn || !toneMappingEl || !exposureEl || !premultEl || !focalEl || !lodScaleEl || !defaultBtn || !superSplatBtn) return
 
   let draft = loadSaved()
 
@@ -66,6 +69,7 @@ export function setupRenderSettings(
     exposureEl!.value = String(s.exposure)
     premultEl!.checked = s.premultipliedAlpha
     focalEl!.value = String(s.focalAdjustment)
+    lodScaleEl!.value = String(s.lodSplatScale)
   }
 
   function applyAndSave(s: RenderSettingsState): void {
@@ -111,6 +115,14 @@ export function setupRenderSettings(
     const v = parseFloat(focalEl.value)
     if (!isNaN(v) && v > 0) {
       draft = { ...draft, focalAdjustment: v }
+      applyAndSave(draft)
+    }
+  })
+
+  lodScaleEl.addEventListener('input', () => {
+    const v = parseFloat(lodScaleEl.value)
+    if (!isNaN(v) && v >= 0) {
+      draft = { ...draft, lodSplatScale: v }
       applyAndSave(draft)
     }
   })

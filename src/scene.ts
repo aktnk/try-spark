@@ -18,7 +18,14 @@ export function createSceneContext(container: HTMLElement): SceneContext {
   renderer.setSize(window.innerWidth, window.innerHeight)
   container.appendChild(renderer.domElement)
 
-  const spark = new SparkRenderer({ renderer })
+  const spark = new SparkRenderer({
+    renderer,
+    enableLod: true,
+    enableDriveLod: true,
+    lodSplatCount: 2_500_000,
+    lodSplatScale: 1.0,
+    lodRenderScale: 1.0,
+  })
   scene.add(spark)
 
   window.addEventListener('resize', () => {
