@@ -30,7 +30,7 @@ export function setupJoystick(zone: HTMLElement): { getMoveVector: () => MoveVec
 }
 
 export function setupSparkControls(canvas: HTMLCanvasElement): {
-  update: (camera: THREE.Object3D) => void
+  update: (camera: THREE.PerspectiveCamera) => void
   fpsMovement: SparkControls['fpsMovement']
   pointerControls: SparkControls['pointerControls']
 } {
