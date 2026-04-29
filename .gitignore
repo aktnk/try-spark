@@ -4,3 +4,4 @@ dist/
 memo*.txt
 CLAUDE.md
 *.bak
+.claude/
