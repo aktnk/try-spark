@@ -1,5 +1,6 @@
 import { SplatMesh } from '@sparkjsdev/spark'
 import type * as THREE from 'three'
+import type { PixieMorphController } from './types'
 
 type FlipAxis = 'x' | 'y' | 'z'
 
@@ -71,7 +72,8 @@ export function setupFileLoader(
   scene: THREE.Scene,
   openButton: HTMLButtonElement,
   onFirstLoad?: () => void,
-  hudControl?: { pause: () => void; resume: () => void }
+  hudControl?: { pause: () => void; resume: () => void },
+  pixieMorph?: PixieMorphController,
 ): void {
   let firstLoaded = false
   const fileNameDisplay = document.getElementById('file-name-display')
@@ -90,29 +92,52 @@ export function setupFileLoader(
 
     openButton.disabled = true
     hudControl?.pause()
-    loadingOverlay.showLoading()
     if (fileNameDisplay) fileNameDisplay.textContent = label
 
+    if (pixieMorph) {
+      pixieMorph.startPhase1()
+    } else {
+      loadingOverlay.showLoading()
+    }
+
     const isBlobUrl = url.startsWith('blob:')
-    const mesh = new SplatMesh({ url, lod: true })
+    const mesh = new SplatMesh({
+      url,
+      lod: true,
+      onProgress: pixieMorph
+        ? (e: ProgressEvent) => {
+            if (e.total > 0) pixieMorph.setProgress(e.loaded / e.total)
+          }
+        : undefined,
+    })
     currentModel = mesh
     scene.add(mesh)
+    if (pixieMorph) mesh.visible = false
+
+    const onLoadComplete = (): void => {
+      openButton.disabled = false
+      if (!firstLoaded) {
+        firstLoaded = true
+        onFirstLoad?.()
+      } else {
+        hudControl?.resume()
+      }
+    }
 
     mesh.initialized
       .then(() => {
         if (isBlobUrl) URL.revokeObjectURL(url)
-        loadingOverlay.hide()
-        openButton.disabled = false
-        if (!firstLoaded) {
-          firstLoaded = true
-          onFirstLoad?.()
+        if (pixieMorph) {
+          pixieMorph.startPhase2(mesh, onLoadComplete)
         } else {
-          hudControl?.resume()
+          loadingOverlay.hide()
+          onLoadComplete()
         }
       })
       .catch((err: unknown) => {
         if (isBlobUrl) URL.revokeObjectURL(url)
         const msg = err instanceof Error ? err.message : 'ファイルを読み込めませんでした'
+        if (pixieMorph) pixieMorph.cleanup()
         loadingOverlay.showError(msg)
         openButton.disabled = false
         hudControl?.resume()
