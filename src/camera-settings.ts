@@ -7,6 +7,8 @@ const CAMERA_INITIAL = {
   speed: 1.0,
 }
 
+const TURBO_MULTIPLIERS = [0.5, 1, 2, 3, 4] as const
+
 export function setupCameraSettings(
   camera: THREE.PerspectiveCamera,
   fpsMovement: FpsMovement,
@@ -20,11 +22,15 @@ export function setupCameraSettings(
   const okBtn = document.getElementById('cam-ok') as HTMLButtonElement
   const cancelBtn = document.getElementById('cam-cancel') as HTMLButtonElement
   const closeBtn = document.getElementById('cam-close') as HTMLButtonElement
+  const turboIndicator = document.getElementById('turbo-indicator') as HTMLDivElement
+  const turboLabel = document.getElementById('turbo-multiplier-label') as HTMLSpanElement
 
   const baseMoveSpeed = fpsMovement.moveSpeed
 
   // Current applied speed multiplier (shared with animation loop via getter)
   let appliedSpeedMultiplier = CAMERA_INITIAL.speed
+  // Turbo index: 0=0.5x, 1=1x, 2=2x, 3=3x, 4=4x — start at 1 (1x)
+  let turboIndex = 1
 
   // Snapshot captured when panel opens — used by Cancel
   let snapshot = { fov: camera.fov, zoom: camera.zoom, speed: appliedSpeedMultiplier }
@@ -34,6 +40,35 @@ export function setupCameraSettings(
     zoomInput.value = String(values.zoom)
     speedInput.value = String(values.speed)
   }
+
+  function applyMoveSpeed(): void {
+    fpsMovement.moveSpeed = baseMoveSpeed * appliedSpeedMultiplier * TURBO_MULTIPLIERS[turboIndex]
+  }
+
+  function updateTurboIndicator(): void {
+    const mult = TURBO_MULTIPLIERS[turboIndex]
+    turboIndicator.classList.remove('slow', 'x2', 'x3', 'x4')
+    if (mult === 1) {
+      turboIndicator.classList.add('hidden')
+    } else {
+      turboLabel.textContent = String(mult)
+      turboIndicator.classList.remove('hidden')
+      turboIndicator.classList.add(mult < 1 ? 'slow' : `x${mult}`)
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 't' && e.key !== 'T' && e.key !== 'r' && e.key !== 'R') return
+    const tag = (e.target as HTMLElement).tagName
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+    if (e.key === 't' || e.key === 'T') {
+      turboIndex = Math.min(TURBO_MULTIPLIERS.length - 1, turboIndex + 1)
+    } else {
+      turboIndex = Math.max(0, turboIndex - 1)
+    }
+    applyMoveSpeed()
+    updateTurboIndicator()
+  })
 
   // Live preview: apply FOV and Zoom immediately
   function applyFovZoom(): void {
@@ -48,7 +83,7 @@ export function setupCameraSettings(
     const speed = parseFloat(speedInput.value)
     if (!isNaN(speed) && speed > 0) {
       appliedSpeedMultiplier = speed
-      fpsMovement.moveSpeed = baseMoveSpeed * speed
+      applyMoveSpeed()
     }
   }
 
@@ -96,6 +131,6 @@ export function setupCameraSettings(
   setInputValues(CAMERA_INITIAL)
 
   return {
-    getSpeedMultiplier: () => appliedSpeedMultiplier,
+    getSpeedMultiplier: () => appliedSpeedMultiplier * TURBO_MULTIPLIERS[turboIndex],
   }
 }

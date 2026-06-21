@@ -4,6 +4,7 @@ import { setupJoystick, setupSparkControls } from './controls'
 import { setupCameraSettings } from './camera-settings'
 import { setupHud } from './hud'
 import { setupRenderSettings } from './render-settings'
+import { createPixieMorphController } from './pixie-morph'
 
 const BASE_JOYSTICK_SPEED = 0.05
 
@@ -25,7 +26,8 @@ function init(): void {
   const { getSpeedMultiplier } = setupCameraSettings(camera, fpsMovement)
   const { showHud, pauseHud, resumeHud } = setupHud()
   setupRenderSettings(renderer, spark)
-  setupFileLoader(scene, fileOpenBtn, showHud, { pause: pauseHud, resume: resumeHud })
+  const pixieMorph = createPixieMorphController(scene)
+  setupFileLoader(scene, fileOpenBtn, showHud, { pause: pauseHud, resume: resumeHud }, pixieMorph)
   const { getMoveVector } = setupJoystick(joystickZone)
 
   const resetViewBtn = document.getElementById('reset-view-btn') as HTMLButtonElement
@@ -64,6 +66,8 @@ function init(): void {
       camera.translateX(move.x * joystickSpeed)
       camera.translateZ(-move.y * joystickSpeed)
     }
+
+    pixieMorph.update(performance.now() / 1000)
 
     renderer.render(scene, camera)
   }

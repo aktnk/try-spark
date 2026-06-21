@@ -7,10 +7,10 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          three: ['three'],
-          spark: ['@sparkjsdev/spark'],
-          nipplejs: ['nipplejs'],
+        manualChunks(id: string) {
+          if (id.includes('node_modules/three')) return 'three'
+          if (id.includes('node_modules/@sparkjsdev')) return 'spark'
+          if (id.includes('node_modules/nipplejs')) return 'nipplejs'
         },
       },
     },
