@@ -3,6 +3,13 @@ import * as THREE from 'three'
 const MAX_PARTICLES = 50_000
 const SPAWN_RADIUS = 2.5
 const CONVERGENCE_DURATION = 1.5
+const FADE_OUT_DURATION = 1.5
+
+const PASTEL_COLORS = [
+  [0.86, 0.76, 1.00],  // lavender
+  [0.68, 1.00, 0.86],  // mint
+  [1.00, 0.82, 0.88],  // rose
+] as const
 
 const VERTEX_SHADER = /* glsl */ `
   attribute vec3 targetPosition;
@@ -30,11 +37,12 @@ const VERTEX_SHADER = /* glsl */ `
     gl_Position = projectionMatrix * mvPos;
 
     float dist = max(-mvPos.z, 0.1);
-    gl_PointSize = clamp(110.0 / dist, 1.5, 10.0);
+    gl_PointSize = clamp(55.0 / dist, 0.75, 5.0);
   }
 `
 
 const FRAGMENT_SHADER = /* glsl */ `
+  uniform float opacity;
   varying vec3 vColor;
 
   void main() {
@@ -45,7 +53,7 @@ const FRAGMENT_SHADER = /* glsl */ `
     float glow = 1.0 - smoothstep(0.0, 0.5, r);
     glow = pow(glow, 1.4);
 
-    gl_FragColor = vec4(vColor * (0.55 + 0.45 * glow), glow * 0.92);
+    gl_FragColor = vec4(vColor * (0.55 + 0.45 * glow), glow * 0.92 * opacity);
   }
 `
 
@@ -54,8 +62,9 @@ export interface ParticleSystem {
   readonly geometry: THREE.BufferGeometry
   readonly material: THREE.ShaderMaterial
   readonly spawnedCount: number
-  readonly phase: 'spawning' | 'converging' | 'done'
+  readonly phase: 'spawning' | 'converging' | 'fading' | 'done'
   readonly convergenceStart: number
+  readonly fadeOutStart: number
 }
 
 function randomInSphere(): [number, number, number] {
@@ -85,14 +94,14 @@ export function createParticleSystem(scene: THREE.Scene): ParticleSystem {
     targetPositions[i * 3 + 1] = y
     targetPositions[i * 3 + 2] = z
 
-    const t = Math.random()
-    spawnColors[i * 3] = 0.25 + t * 0.55
-    spawnColors[i * 3 + 1] = 0.55 + t * 0.38
-    spawnColors[i * 3 + 2] = 0.88 + t * 0.12
+    const c = PASTEL_COLORS[Math.floor(Math.random() * PASTEL_COLORS.length)]
+    spawnColors[i * 3] = c[0]
+    spawnColors[i * 3 + 1] = c[1]
+    spawnColors[i * 3 + 2] = c[2]
 
-    targetColors[i * 3] = spawnColors[i * 3]
-    targetColors[i * 3 + 1] = spawnColors[i * 3 + 1]
-    targetColors[i * 3 + 2] = spawnColors[i * 3 + 2]
+    targetColors[i * 3] = c[0]
+    targetColors[i * 3 + 1] = c[1]
+    targetColors[i * 3 + 2] = c[2]
 
     seeds[i] = Math.random() * Math.PI * 2
   }
@@ -109,6 +118,7 @@ export function createParticleSystem(scene: THREE.Scene): ParticleSystem {
     uniforms: {
       time: { value: 0 },
       convergence: { value: 0 },
+      opacity: { value: 1.0 },
     },
     vertexShader: VERTEX_SHADER,
     fragmentShader: FRAGMENT_SHADER,
@@ -120,7 +130,7 @@ export function createParticleSystem(scene: THREE.Scene): ParticleSystem {
   const points = new THREE.Points(geometry, material)
   scene.add(points)
 
-  return { points, geometry, material, spawnedCount: 0, phase: 'spawning', convergenceStart: 0 }
+  return { points, geometry, material, spawnedCount: 0, phase: 'spawning', convergenceStart: 0, fadeOutStart: 0 }
 }
 
 export function spawnParticles(ps: ParticleSystem, count: number): ParticleSystem {
@@ -159,6 +169,15 @@ export function setConvergenceTargets(
   return { ...ps, phase: 'converging', convergenceStart: currentTime, spawnedCount: MAX_PARTICLES }
 }
 
+export function startConverging(ps: ParticleSystem, time: number): ParticleSystem {
+  // Converge to initial spawn positions (particles stop floating in place)
+  return { ...ps, phase: 'converging', convergenceStart: time, spawnedCount: MAX_PARTICLES }
+}
+
+export function startFadeOut(ps: ParticleSystem, time: number): ParticleSystem {
+  return { ...ps, phase: 'fading', fadeOutStart: time }
+}
+
 export function updateParticleSystem(ps: ParticleSystem, time: number): ParticleSystem {
   ps.material.uniforms.time.value = time
 
@@ -167,6 +186,15 @@ export function updateParticleSystem(ps: ParticleSystem, time: number): Particle
     const convergence = Math.min(elapsed / CONVERGENCE_DURATION, 1.0)
     ps.material.uniforms.convergence.value = convergence
     if (convergence >= 1.0) {
+      return { ...ps, phase: 'done' }
+    }
+  }
+
+  if (ps.phase === 'fading') {
+    const elapsed = time - ps.fadeOutStart
+    const t = Math.min(elapsed / FADE_OUT_DURATION, 1.0)
+    ps.material.uniforms.opacity.value = 1.0 - t
+    if (t >= 1.0) {
       return { ...ps, phase: 'done' }
     }
   }

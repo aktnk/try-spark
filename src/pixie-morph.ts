@@ -1,11 +1,11 @@
 import * as THREE from 'three'
 import { type SplatMesh } from '@sparkjsdev/spark'
-import { synthesizeConvergeSound } from './audio-synth'
 import {
   type ParticleSystem,
   createParticleSystem,
   spawnParticles,
-  setConvergenceTargets,
+  startConverging,
+  startFadeOut,
   updateParticleSystem,
   disposeParticleSystem,
 } from './particle-system'
@@ -30,23 +30,6 @@ export interface PixieMorphController {
   startPhase2(mesh: SplatMesh, onComplete: () => void): void
   update(time: number): void
   cleanup(): void
-}
-
-function collectSplatSamples(mesh: SplatMesh): { positions: Float32Array; colors: Float32Array } {
-  const positions: number[] = []
-  const colors: number[] = []
-
-  mesh.forEachSplat((_idx, center, _scales, _quat, _opacity, color) => {
-    if (positions.length / 3 < MAX_PARTICLES) {
-      positions.push(center.x, center.y, center.z)
-      colors.push(color.r, color.g, color.b)
-    }
-  })
-
-  return {
-    positions: new Float32Array(positions),
-    colors: new Float32Array(colors),
-  }
 }
 
 export function createPixieMorphController(
@@ -84,18 +67,16 @@ export function createPixieMorphController(
       return
     }
 
-    // Pre-warm: make mesh visible at opacity 0 now so Spark compiles shaders
-    // during the 1.5s convergence animation, eliminating the gap on Phase 3 start
+    // Pre-warm: make mesh visible at opacity 0 so Spark compiles shaders
+    // during the convergence animation, eliminating the gap on Phase 3 start
     mesh.visible = true
     mesh.opacity = 0
 
-    synthesizeConvergeSound()
-
-    const { positions, colors } = collectSplatSamples(mesh)
     const currentTime = performance.now() / 1000
-
     let newPs = spawnParticles(state.ps, MAX_PARTICLES)
-    newPs = setConvergenceTargets(newPs, positions, colors, currentTime)
+    // Converge particles to their spawn positions (they stop floating in place),
+    // avoiding the main-thread block that forEachSplat caused on large models
+    newPs = startConverging(newPs, currentTime)
 
     state = {
       ...state,
@@ -110,14 +91,13 @@ export function createPixieMorphController(
     const { mesh, ps, onComplete } = state
     if (!mesh || !ps) return
 
-    disposeParticleSystem(ps, scene)
-
-    // mesh.visible and mesh.opacity = 0 were already set in startPhase2
+    // Keep ps alive for fade-out; mesh.visible/opacity=0 already set in startPhase2
+    const fadingPs = startFadeOut(ps, time)
 
     state = {
       ...state,
       phase: 'phase3',
-      ps: null,
+      ps: fadingPs,
       phaseStartTime: time,
       onComplete,
     }
@@ -140,14 +120,30 @@ export function createPixieMorphController(
     }
 
     if (state.phase === 'phase3' && state.mesh) {
+      const mesh = state.mesh
+
+      // Fade out particles in parallel with mesh fade-in
+      if (state.ps) {
+        const newPs = updateParticleSystem(state.ps, time)
+        if (newPs.phase === 'done') {
+          disposeParticleSystem(newPs, scene)
+          state = { ...state, ps: null }
+        } else {
+          state = { ...state, ps: newPs }
+        }
+      }
+
       const elapsed = time - state.phaseStartTime
       const t = Math.min(elapsed / PHASE3_DURATION, 1.0)
-      state.mesh.opacity = t
+      mesh.opacity = t
 
       if (t >= 1.0) {
-        state.mesh.opacity = 1
+        mesh.opacity = 1
+        if (state.ps) {
+          disposeParticleSystem(state.ps, scene)
+        }
         state.onComplete?.()
-        state = { ...state, phase: 'complete' }
+        state = { ...state, phase: 'complete', ps: null }
       }
     }
   }
