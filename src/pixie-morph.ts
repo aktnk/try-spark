@@ -84,6 +84,11 @@ export function createPixieMorphController(
       return
     }
 
+    // Pre-warm: make mesh visible at opacity 0 now so Spark compiles shaders
+    // during the 1.5s convergence animation, eliminating the gap on Phase 3 start
+    mesh.visible = true
+    mesh.opacity = 0
+
     synthesizeConvergeSound()
 
     const { positions, colors } = collectSplatSamples(mesh)
@@ -107,8 +112,7 @@ export function createPixieMorphController(
 
     disposeParticleSystem(ps, scene)
 
-    mesh.visible = true
-    mesh.opacity = 0
+    // mesh.visible and mesh.opacity = 0 were already set in startPhase2
 
     state = {
       ...state,
