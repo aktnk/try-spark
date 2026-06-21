@@ -180,6 +180,17 @@
             transform: translate(-50%, -50%);
             box-shadow: 0 0 3px rgba(0,0,0,0.7);
         }
+
+        /* Turbo speed indicator */
+        #turbo-indicator {
+            position: fixed; top: 20px; right: 20px;
+            padding: 4px 10px; border-radius: 4px;
+            font-family: sans-serif; font-size: 13px; font-weight: bold;
+            color: white; z-index: 100;
+        }
+        #turbo-indicator.hidden { display: none; }
+        #turbo-indicator.x2 { background: rgba(255,160,0,0.75); border: 1px solid rgba(255,190,0,0.9); }
+        #turbo-indicator.x3 { background: rgba(255,60,0,0.75); border: 1px solid rgba(255,100,0,0.9); }
     </style>
 </head>
 <body>
@@ -237,6 +248,8 @@
     <div class="loading-error-msg" id="loading-error-text">Loading failed</div>
     <button id="loading-close-btn">Close</button>
 </div>
+
+<div id="turbo-indicator" class="hidden">×<span id="turbo-multiplier-label">2</span></div>
 
 <div id="hud-overlay" class="hidden">
     <div class="hud-horizon"></div>
