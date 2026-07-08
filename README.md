@@ -18,6 +18,7 @@ Runs as a native desktop app (Tauri) or in the browser. Load splat files and nav
 - Render settings panel (tone mapping, exposure, premultiplied alpha, focal adjustment, LoD scale)
 - HUD overlay — crosshair and guide lines; shown after first file load
 - **Level-of-Detail (LoD) rendering** — automatic detail scaling based on distance and screen size
+- **Lock-on camera mode** — lock the view onto the model's fixed center point while still flying freely with WASD; move speed auto-scales with distance and a barrier prevents clipping into the model
 
 ## UI Buttons
 
@@ -66,6 +67,17 @@ Adjusts the rendering appearance of loaded splats. Settings are saved to `localS
 | Default | Restore all render settings to defaults |
 | Super Splat | Apply `Focal Adj: 2.0` to match Super Splat Viewer appearance |
 
+### Lock-On Camera Mode
+
+Locks the camera's look direction onto the model's fixed center point (`(0, 0, 0)` by default), so the model stays framed no matter where you fly. Move speed is automatically scaled by distance to the target — fast and dynamic from afar, slowing down for precise close-up inspection — with a minimum speed floor and a hard barrier so you can never clip into the model.
+
+| Control | Description |
+|---------|-------------|
+| Toggle | `Space`, `L`, or `F` (any one toggles lock-on on/off) |
+| Move | WASD, same as normal flight |
+| Look | Locked to the target — mouse look is disabled while active |
+| Exit | Toggle again, or press "Reset view" |
+
 ## Controls
 
 ### PC
@@ -73,12 +85,14 @@ Adjusts the rendering appearance of loaded splats. Settings are saved to `localS
 | Action | Input |
 |--------|-------|
 | Move forward/back/left/right | W / A / S / D |
-| Move up | Space |
-| Move down | Shift |
+| Move up | E |
+| Move down | Q |
+| Speed boost (5x while held) | Shift |
+| Turbo speed step down/up | R / T |
+| Toggle lock-on camera | Space / L / F |
 | Look around | Mouse drag (left button) |
 | Slide | Mouse drag (right button) |
 | Zoom | Scroll wheel |
-| Roll | Q / E |
 
 ### Mobile
 

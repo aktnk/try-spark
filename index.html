@@ -193,6 +193,16 @@
         #turbo-indicator.x2 { background: rgba(255,160,0,0.75); border: 1px solid rgba(255,190,0,0.9); }
         #turbo-indicator.x3 { background: rgba(255,80,0,0.75); border: 1px solid rgba(255,110,0,0.9); }
         #turbo-indicator.x4 { background: rgba(210,0,0,0.85); border: 1px solid rgba(255,50,50,0.9); }
+
+        /* Lock-on mode indicator */
+        #lockon-indicator {
+            position: fixed; top: 60px; right: 20px;
+            padding: 4px 10px; border-radius: 4px;
+            font-family: sans-serif; font-size: 13px; font-weight: bold;
+            color: white; z-index: 100;
+            background: rgba(150,0,220,0.75); border: 1px solid rgba(190,60,255,0.9);
+        }
+        #lockon-indicator.hidden { display: none; }
     </style>
 </head>
 <body>
@@ -252,6 +262,7 @@
 </div>
 
 <div id="turbo-indicator" class="hidden">×<span id="turbo-multiplier-label">2</span></div>
+<div id="lockon-indicator" class="hidden">LOCK ON</div>
 
 <div id="hud-overlay" class="hidden">
     <div class="hud-horizon"></div>
