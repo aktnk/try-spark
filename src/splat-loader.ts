@@ -1,8 +1,24 @@
-import { SplatMesh } from '@sparkjsdev/spark'
+import { SplatMesh, SplatFileType } from '@sparkjsdev/spark'
 import type * as THREE from 'three'
 import type { PixieMorphController } from './types'
 
 type FlipAxis = 'x' | 'y' | 'z'
+
+// Blob URLs (browser file picker) carry no filename/extension, so the loader
+// can't infer the format from the URL alone — pass fileType explicitly based
+// on the originally selected file name instead.
+const FILE_TYPE_BY_EXTENSION: Record<string, SplatFileType> = {
+  ply: SplatFileType.PLY,
+  spz: SplatFileType.SPZ,
+  splat: SplatFileType.SPLAT,
+  ksplat: SplatFileType.KSPLAT,
+  sog: SplatFileType.PCSOGSZIP,
+}
+
+function getFileType(label: string): SplatFileType | undefined {
+  const ext = label.split('.').pop()?.toLowerCase()
+  return ext ? FILE_TYPE_BY_EXTENSION[ext] : undefined
+}
 
 const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
 
@@ -103,6 +119,7 @@ export function setupFileLoader(
     const isBlobUrl = url.startsWith('blob:')
     const mesh = new SplatMesh({
       url,
+      fileType: getFileType(label),
       lod: true,
       onProgress: pixieMorph
         ? (e: ProgressEvent) => {
